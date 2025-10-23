@@ -1,0 +1,41 @@
+name: R6 Daily Stats
+
+on:
+  schedule:
+    - cron: "0 16 * * *"   # 09:00 America/Phoenix (UTC-7)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write  # we commit stats-cache.json after each run
+
+jobs:
+  post-r6:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci || npm i
+
+      - name: Run fetch → post
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TRN_API_KEY: ${{ secrets.TRN_API_KEY }}
+          EMBED_TITLE: "🛡️ Rainbow Six Siege — Daily Update"
+        run: npm run post
+
+      - name: Commit cache (stats-cache.json)
+        run: |
+          if [ -f stats-cache.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add stats-cache.json
+            git commit -m "chore: update stats-cache [skip ci]" || echo "No changes to commit."
+            git push
+          fi
