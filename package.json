@@ -1,0 +1,12 @@
+{
+  "name": "r6-discord-tracker",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Posts Rainbow Six Siege stats to a Discord channel via webhook on a daily schedule. Supports multiple players and 'Most Improved' highlights.",
+  "scripts": {
+    "post": "node r6-fetch-and-post.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
